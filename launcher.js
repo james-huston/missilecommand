@@ -29,7 +29,6 @@ module.exports.commands = kCommands;
 /**
  * Launcher
  * @param hid_path [optional] path of the hid device, will attempt to detect
- * @ todo...attempt to detect ;)
 */
 function Launcher() {
 
@@ -77,7 +76,7 @@ Launcher.prototype.perform = function(action, duration, next) {
 
   // Ensure time to fire
   if(action == kCommands.kFire) {
-  	 duration = 3000;
+  	 duration = 5000;
   }
 
 
