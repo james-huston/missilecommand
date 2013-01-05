@@ -2,6 +2,7 @@
  * Deps.
  */
 var HID = require('HID');
+var debug = require('debug')('launcher');
 
 /** 
  * Commands
@@ -31,11 +32,21 @@ module.exports.commands = kCommands;
  * @ todo...attempt to detect ;)
 */
 function Launcher() {
-console.log('new');
+
 	if(arguments.length === 1) {
 		this.hid_path = arguments[0];
 	} else {
-		this.hid_path = 'USB_2123_1010_fd121000';
+		var devices = HID.devices();
+		var path;
+		for(var i = 0; i <= devices.length; i++) {
+			if( devices[i].manufacturer == 'Syntek' 
+				&& devices[i].product == 'USB Missile Launcher' ) {
+				path = devices[i].path;
+				debug("Located device @ " + path);
+				break;
+			}
+		}
+		this.hid_path = path;
 	}
 
   this.hid = null;
@@ -43,38 +54,50 @@ console.log('new');
 
 Launcher.prototype.connect = function() {
   this.hid = new HID.HID(this.hid_path);
+  //this.hid.setNonBlocking(1);
+  this.hid.read(this.gotData.bind(this));
+
   return this;
 }
 
 Launcher.prototype.reset = function(next) {
 	//this.send_command(kCommands.kRight);
 	var that = this;
-	that.perform(kCommands.kDown, 2000, function() {
-		that.perform(kCommands.kUp, 120, function() {
-			return next && next()
-		})
-	})
+	that.perform(kCommands.kLeft + kCommands.kDown, 6200, function() {
+		that.perform(kCommands.kUp, 150, function() {
+			that.perform(kCommands.kRight, 2800, function() {
+				return next && next();
+			});
+		});
+	});
 }
 
 Launcher.prototype.perform = function(action, duration, next) {
-  console.log("Performing: " + action);
+  debug("Performing: " + action);
 
   // Ensure time to fire
   if(action == kCommands.kFire) {
   	 duration = 3000;
   }
 
-  
-  this.send_command(action);
+
+  this.sendCommand(action);
   var that = this;
   setTimeout(function(){
-      that.send_command(kCommands.kStop);
+      that.sendCommand(kCommands.kStop);
       return next && next();
   }, duration);
 }
 
-Launcher.prototype.send_command = function(action) {
-	console.log("Sending: " + action);
+Launcher.prototype.sendCommand = function(action) {
+  debug("Sending: " + action);
   this.hid.write([0x21, 0x09, 0, 0]);
   this.hid.write([0x02, action, 0x00,0x00,0x00,0x00,0x00,0x00]);
 }
+
+Launcher.prototype.gotData = function(err, res) {
+	debug('got data', res);
+    this.hid.read(this.gotData.bind(this));
+}
+
+

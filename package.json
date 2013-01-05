@@ -1,0 +1,21 @@
+{
+  "name": "missilecommand",
+  "version": "0.0.0",
+  "description": "Testing Missile Launch Controller",
+  "main": "launcher.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/james-huston/missilecommand.git"
+  },
+  "author": "Colin Mutter",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "d0cb69fcc1f8e15bc97fa4cb84a339ee447403ba",
+  "dependencies": {
+    "debug": "~0.7.0",
+    "node-hid": "~0.1.1"
+  }
+}
